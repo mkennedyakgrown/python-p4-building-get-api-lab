@@ -21,58 +21,21 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    bakeries = Bakery.query.all()
-    body = [bakery_to_dict(b) for b in bakeries]
+    body = [b.to_dict() for b in Bakery.query.all()]
 
     return make_response(body, 200)
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    bakery = Bakery.query.filter_by(id=id).first()
-    return bakery_to_dict(bakery)
+    return Bakery.query.filter_by(id=id).first().to_dict()
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    baked_goods = BakedGood.query.order_by(desc('price')).all()
-    return [baked_good_to_dict(bg) for bg in baked_goods]
+    return [bg.to_dict() for bg in BakedGood.query.order_by(desc('price')).all()]
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return baked_good_to_dict(BakedGood.query.order_by(desc('price')).first())
-
-def bakery_to_dict(b):
-    return {
-        "baked_goods": [{
-            "bakery_id": bg.bakery_id,
-            "created_at": bg.created_at,
-            "id": bg.id,
-            "name": bg.name,
-            "price": bg.price,
-            "updated_at": bg.updated_at
-        } for bg in b.baked_goods],
-        "created_at": b.created_at,
-        "id": b.id,
-        "name": b.name,
-        "updated_at": b.updated_at
-    }
-
-def baked_good_to_dict(bg):
-    bg_dict = {
-        "bakery_id": bg.bakery_id,
-        "created_at": bg.created_at,
-        "id": bg.id,
-        "name": bg.name,
-        "price": bg.price,
-        "updated_at": bg.updated_at
-    }
-    if bg.bakery:
-        bg_dict["bakery"] = {
-            "created_at": bg.bakery.created_at,
-            "id": bg.bakery.id,
-            "name": bg.bakery.name,
-            "updated_at": bg.bakery.updated_at
-        }
-    return bg_dict
+    return BakedGood.query.order_by(desc('price')).first().to_dict()
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
